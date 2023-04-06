@@ -24,7 +24,7 @@ class PaymentGateway
 
     public function getStatus()
     {
-        return $this->paymentMethod->getResponse();
+        return $this->paymentMethod->getStatus();
     }
 
 }
