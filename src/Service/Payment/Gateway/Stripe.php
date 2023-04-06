@@ -68,7 +68,11 @@ class Stripe implements PaymentContract
     {
         $response = $this->getResponse();
 
-        return $response->status;
+        if($response->status === 'succeeded'){
+            return true;
+        }
+
+        return false;
     }
 
     private function getResponse()
