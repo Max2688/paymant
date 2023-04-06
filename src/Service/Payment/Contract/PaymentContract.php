@@ -5,9 +5,11 @@ namespace App\Service\Payment\Contract;
 interface PaymentContract
 {
     public function getCard();
-    public function getResponse();
+    public function getDate();
+    public function getMonth();
+    public function getAmount();
+    public function getYear();
+    public function getName();
+    public function getCvv();
     public function getStatus();
-    public function getTransactionId();
-    public function getResponseMessage();
-    public function getErrors();
 }

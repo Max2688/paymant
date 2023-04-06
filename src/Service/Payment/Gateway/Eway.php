@@ -1,23 +1,18 @@
 <?php
 
-namespace App\Service\Payment;
+namespace App\Service\Payment\Gateway;
 
 use App\Service\Payment\Contract\PaymentContract;
-use Illuminate\Http\Request;
-use Eway\Rapid\Client as Client;
 use Eway\Rapid as Connect;
+use Eway\Rapid\Client as Client;
 use Eway\Rapid\Enum\ApiMethod;
 use Eway\Rapid\Enum\TransactionType;
+use Illuminate\Http\Request;
+use function config;
 
 class Eway implements PaymentContract
 {
-    private $apiKey = '';
-
-    private $apiPassword = '';
-
-    private $apiEndpoint = Client::MODE_SANDBOX;
-
-    private $request;
+    private Request $request;
 
     public function __construct(Request $request)
     {
@@ -42,12 +37,14 @@ class Eway implements PaymentContract
     public function getMonth()
     {
         $month = explode('/',$this->getDate());
+
         return $month[0];
     }
 
     public function getYear()
     {
         $year = explode('/',$this->getDate());
+
         return $year[1];
     }
 
@@ -61,9 +58,26 @@ class Eway implements PaymentContract
         return str_replace(',', '', $this->request->input('billing_total') ) * 100;
     }
 
-    public function getTransaction()
+    public function getStatus()
+    {
+        $response = $this->getResponse();
+
+        return $response->TransactionStatus;
+    }
+
+    private function getResponse()
+    {
+        $gatewayClient = Connect::createClient(config('services.eway.key'),config('services.eway.password'));
+
+        $response = $gatewayClient->createTransaction(ApiMethod::DIRECT,$this->getTransaction());
+
+        return $response;
+    }
+
+    private function getTransaction()
     {
         $this->getDate();
+
         $transaction = [
             'Customer' => [
                 'CardDetails' => [
@@ -82,32 +96,4 @@ class Eway implements PaymentContract
 
         return $transaction;
     }
-
-    public function getResponse()
-    {
-        $gatewayConnect = Connect::createClient($this->apiKey,$this->apiPassword,$this->apiEndpoint);
-        $response = $gatewayConnect->createTransaction(ApiMethod::DIRECT,$this->getTransaction());
-        return $response;
-    }
-
-    public function getStatus()
-    {
-        return $this->getResponse()->TransactionStatus;
-    }
-
-    public function getTransactionId()
-    {
-        return $this->getResponse()->TransactionID;
-    }
-
-    public function getResponseMessage()
-    {
-        return $this->getResponse()->ResponseMessage;
-    }
-
-    public function getErrors()
-    {
-        return Connect::getMessage($this->getResponse()->Errors);
-    }
-
 }

@@ -4,18 +4,18 @@ namespace App;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Service\Payment\PaymentManager as PaymentGateway;
+use App\Service\Payment\PaymentService;
 use App\Models\Order;
 
 class CheckoutController extends Controller
 {
     public function handlePayment(Request $request, Order $order)
     {
-        $payment = new PaymentGateway($request->input('payment'), $request);
+        $payment = new PaymentService($request->input('payment'), $request);
 
-        $paymentStatus = $payment->status();
+        $paymentGateway = $payment->getPaymentGateway();
 
-        if ($paymentStatus) {
+        if ($paymentGateway->getStatus()) {
             $order->update([
                 'payment_method' => $request->input('payment'),
                 'payment_status' => 'Completed',
