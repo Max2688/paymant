@@ -15,18 +15,23 @@ class PaymentService
     public function __construct(string $method, Request $request)
     {
         $this->method = $method;
+        
         $this->request = $request;
     }
 
     public function getPaymentGateway()
     {
-       switch ($this->method){
+        switch ($this->method){
             case 'eway':
-                return new Eway($this->request);
-           case 'stripe':
-               return new Stripe($this->request);
-           default:
-               throw new \Exception("Unknown Payment Method");
+                $eway = new Eway($this->request);
+                $context = new PaymentGateway($eway);
+                return $context;
+            case 'stripe':
+                $stripe = new Stripe($this->request);
+                $context = new PaymentGateway($stripe);
+                return $context;
+            default:
+                throw new \Exception("Unknown Payment Method");
 
         }
     }

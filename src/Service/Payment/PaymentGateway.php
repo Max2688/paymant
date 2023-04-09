@@ -16,12 +16,6 @@ class PaymentGateway
         $this->paymentMethod = $paymentMethod;
     }
 
-
-    public function setPaymentMethod(PaymentContract $paymentMethod)
-    {
-        $this->paymentMethod = $paymentMethod;
-    }
-
     public function getStatus()
     {
         return $this->paymentMethod->getStatus();
