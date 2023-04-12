@@ -3,68 +3,93 @@
 namespace App\Service\Payment\Gateway;
 
 use App\Exceptions\PaymentException;
-use App\Service\Payment\Contract\PaymentContract;
+use App\Service\Payment\Contract\PaymentGatewayContract;
 use Illuminate\Http\Request;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
+use Stripe\StripeClient;
+use Stripe\Charge;
 use function config;
 
-class Stripe implements PaymentContract
+class Stripe implements PaymentGatewayContract
 {
+    /**
+     * @var Request
+     */
     private Request $request;
 
+    /**
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
     }
 
-    private function getStripeClient()
-    {
-        $stripe = new \Stripe\StripeClient(config('services.stripe.secret_key'));
-
-        return $stripe;
-    }
-
-    public function getCard()
+    /**
+     * @inheritDoc
+     */
+    public function getCard(): string
     {
         return $this->request->input('card');
     }
 
-    public function getName()
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
     {
         return $this->request->input('name');
     }
 
-    public function getDate()
+    /**
+     * @inheritDoc
+     */
+    public function getDate(): string
     {
         return $this->request->input('date');
     }
 
-    public function getMonth()
+    /**
+     * @inheritDoc
+     */
+    public function getMonth(): string
     {
         $month = explode('/',$this->getDate());
 
         return $month[0];
     }
 
-    public function getYear()
+    /**
+     * @inheritDoc
+     */
+    public function getYear(): string
     {
         $year = explode('/',$this->getDate());
 
         return $year[1];
     }
 
-    public function getCvv()
+    /**
+     * @inheritDoc
+     */
+    public function getCvv(): string
     {
         return $this->request->input('cvv');
     }
 
-    public function getAmount()
+    /**
+     * @inheritDoc
+     */
+    public function getAmount(): float
     {
         return str_replace(',', '', $this->request->input('billing_total') ) * 100;
     }
 
-    public function getStatus()
+    /**
+     * @inheritDoc
+     */
+    public function getStatus(): bool
     {
         $response = $this->getResponse();
 
@@ -75,7 +100,12 @@ class Stripe implements PaymentContract
         return false;
     }
 
-    private function getResponse()
+    /**
+     * @return Charge
+     * @throws PaymentException
+     * @throws InvalidRequestException
+     */
+    private function getResponse(): Charge
     {
         try {
 
@@ -93,6 +123,11 @@ class Stripe implements PaymentContract
         return $response;
     }
 
+    /**
+     * @return int
+     * @throws PaymentCardException
+     * @throws CardException
+     */
     private function generateValidPaymentToken()
     {
         try{
@@ -111,5 +146,15 @@ class Stripe implements PaymentContract
         }
 
         return $token->id;
+    }
+
+    /**
+     * @return StripeClient
+     */
+    private function getStripeClient(): StripeClient
+    {
+        $stripe = new StripeClient(config('services.stripe.secret_key'));
+
+        return $stripe;
     }
 }

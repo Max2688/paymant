@@ -2,21 +2,29 @@
 
 namespace App\Service\Payment;
 
-use App\Service\Payment\Contract\PaymentContract;
+use App\Service\Payment\Contract\PaymentGatewayContract;
 
 class PaymentGateway
 {
-    private PaymentContract $paymentMethod;
+    /**
+     * @var PaymentGatewayContract
+     */
+    private PaymentGatewayContract $paymentMethod;
 
     /**
-     * @param PaymentContract $paymentMethod
+     * @param PaymentGatewayContract $paymentMethod
      */
-    public function __construct(PaymentContract $paymentMethod)
+    public function __construct(PaymentGatewayContract $paymentMethod)
     {
         $this->paymentMethod = $paymentMethod;
     }
 
-    public function getStatus()
+    /**
+     * @return bool
+     *
+     * Get status for current payment
+     */
+    public function getStatus(): bool
     {
         return $this->paymentMethod->getStatus();
     }

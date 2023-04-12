@@ -2,79 +2,115 @@
 
 namespace App\Service\Payment\Gateway;
 
-use App\Service\Payment\Contract\PaymentContract;
+use App\Service\Payment\Contract\PaymentGatewayContract;
 use Eway\Rapid as Connect;
-use Eway\Rapid\Client as Client;
+use Eway\Rapid\Model\Response\CreateTransactionResponse;
 use Eway\Rapid\Enum\ApiMethod;
 use Eway\Rapid\Enum\TransactionType;
 use Illuminate\Http\Request;
 use function config;
 
-class Eway implements PaymentContract
+class Eway implements PaymentGatewayContract
 {
+    /**
+     * @var Request
+     */
     private Request $request;
 
+    /**
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
     }
 
-    public function getCard()
+    /**
+     * @inheritDoc
+     */
+    public function getCard(): string
     {
         return $this->request->input('card');
     }
 
-    public function getName()
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
     {
         return $this->request->input('name');
     }
 
-    public function getDate()
+    /**
+     * @inheritDoc
+     */
+    public function getDate(): string
     {
         return $this->request->input('date');
     }
 
-    public function getMonth()
+    /**
+     * @inheritDoc
+     */
+    public function getMonth(): string
     {
         $month = explode('/',$this->getDate());
 
         return $month[0];
     }
 
-    public function getYear()
+    /**
+     * @inheritDoc
+     */
+    public function getYear(): string
     {
         $year = explode('/',$this->getDate());
 
         return $year[1];
     }
 
-    public function getCvv()
+    /**
+     * @inheritDoc
+     */
+    public function getCvv(): string
     {
         return $this->request->input('cvv');
     }
 
-    public function getAmount()
+    /**
+     * @inheritDoc
+     */
+    public function getAmount(): float
     {
         return str_replace(',', '', $this->request->input('billing_total') ) * 100;
     }
 
-    public function getStatus()
+    /**
+     * @inheritDoc
+     */
+    public function getStatus(): bool
     {
         $response = $this->getResponse();
 
         return $response->TransactionStatus;
     }
 
-    private function getResponse()
+    /**
+     * @return CreateTransactionResponse
+     */
+    private function getResponse(): CreateTransactionResponse
     {
         $gatewayClient = Connect::createClient(config('services.eway.key'),config('services.eway.password'));
 
-        $response = $gatewayClient->createTransaction(ApiMethod::DIRECT,$this->getTransaction());
+        $response = $gatewayClient->createTransaction(ApiMethod::DIRECT, $this->getTransactionData());
 
         return $response;
     }
 
-    private function getTransaction()
+    /**
+     * @return array
+     */
+    private function getTransactionData(): array
     {
         $this->getDate();
 

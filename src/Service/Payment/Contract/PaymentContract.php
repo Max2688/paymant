@@ -2,14 +2,14 @@
 
 namespace App\Service\Payment\Contract;
 
+use App\Exceptions\UnknownPaymentMethodException;
+use App\Service\Payment\PaymentGateway;
+
 interface PaymentContract
 {
-    public function getCard();
-    public function getDate();
-    public function getMonth();
-    public function getAmount();
-    public function getYear();
-    public function getName();
-    public function getCvv();
-    public function getStatus();
+    /**
+     * @return PaymentGateway
+     * @throws UnknownPaymentMethodException
+     */
+    public function getPaymentGateway(string $method, Request $request): PaymentGateway;
 }

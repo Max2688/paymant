@@ -2,36 +2,28 @@
 
 namespace App\Service\Payment;
 
+use App\Exceptions\UnknownPaymentMethodException;
+use App\Service\Payment\Contract\PaymentContract;
 use App\Service\Payment\Gateway\Eway;
 use App\Service\Payment\Gateway\Stripe;
 use Illuminate\Http\Request;
 
-class PaymentService
+class PaymentService implements PaymentContract
 {
-    private string $method;
-
-    private Request $request;
-
-    public function __construct(string $method, Request $request)
+    /**
+     * @inheritDoc
+     */
+    public function getPaymentGateway(string $method, Request $request): PaymentGateway
     {
-        $this->method = $method;
-        
-        $this->request = $request;
-    }
-
-    public function getPaymentGateway()
-    {
-        switch ($this->method){
+        switch ($method){
             case 'eway':
-                $eway = new Eway($this->request);
-                $context = new PaymentGateway($eway);
-                return $context;
+                $eway = new Eway($request);
+                return new PaymentGateway($eway);
             case 'stripe':
-                $stripe = new Stripe($this->request);
-                $context = new PaymentGateway($stripe);
-                return $context;
+                $stripe = new Stripe($request);
+                return new PaymentGateway($stripe);
             default:
-                throw new \Exception("Unknown Payment Method");
+                throw new UnknownPaymentMethodException("Unknown Payment Method");
 
         }
     }
