@@ -2,9 +2,9 @@
 
 namespace App\Service\Payment\Gateway;
 
+use App\DTO\PaymentGatewayDto;
 use App\Exceptions\PaymentException;
 use App\Service\Payment\Contract\PaymentGatewayContract;
-use Illuminate\Http\Request;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
@@ -14,24 +14,18 @@ use function config;
 class Stripe implements PaymentGatewayContract
 {
     /**
-     * @var Request
+     * @param PaymentGatewayDto $paymentDto
      */
-    private Request $request;
-
-    /**
-     * @param Request $request
-     */
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
+    public function __construct(
+        protected PaymentGatewayDto $paymentDto
+    ){}
 
     /**
      * @inheritDoc
      */
     public function getCard(): string
     {
-        return $this->request->input('card');
+        return $this->paymentDto->card;
     }
 
     /**
@@ -39,7 +33,7 @@ class Stripe implements PaymentGatewayContract
      */
     public function getName(): string
     {
-        return $this->request->input('name');
+        return $this->paymentDto->name;
     }
 
     /**
@@ -47,27 +41,7 @@ class Stripe implements PaymentGatewayContract
      */
     public function getDate(): string
     {
-        return $this->request->input('date');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getMonth(): string
-    {
-        $month = explode('/',$this->getDate());
-
-        return $month[0];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getYear(): string
-    {
-        $year = explode('/',$this->getDate());
-
-        return $year[1];
+        return $this->paymentDto->date;
     }
 
     /**
@@ -75,7 +49,7 @@ class Stripe implements PaymentGatewayContract
      */
     public function getCvv(): string
     {
-        return $this->request->input('cvv');
+        return $this->paymentDto->cvv;
     }
 
     /**
@@ -83,7 +57,7 @@ class Stripe implements PaymentGatewayContract
      */
     public function getAmount(): float
     {
-        return str_replace(',', '', $this->request->input('billing_total') ) * 100;
+        return str_replace(',', '', $this->paymentDto->amount ) * 100;
     }
 
     /**
@@ -146,6 +120,26 @@ class Stripe implements PaymentGatewayContract
         }
 
         return $token->id;
+    }
+
+    /**
+     * @return string
+     */
+    private function getMonth(): string
+    {
+        $month = explode('/',$this->getDate());
+
+        return $month[0];
+    }
+
+    /**
+     * @return string
+     */
+    private function getYear(): string
+    {
+        $year = explode('/',$this->getDate());
+
+        return $year[1];
     }
 
     /**

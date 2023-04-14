@@ -2,19 +2,22 @@
 
 namespace App;
 
+use App\DTO\PaymentGatewayDto;
 use App\Exceptions\PaymentException;
 use App\Exceptions\UnknownPaymentMethodException;
 use App\Http\Controllers\Controller;
-use App\Service\Payment\Contract\PaymentContract;
+use App\Service\Payment\Contract\PaymentGatewayFactoryContract;
 use Illuminate\Http\Request;
 use App\Models\Order;
 
 class CheckoutController extends Controller
 {
-    public function handlePayment(Request $request, PaymentContract $paymentService)
+    public function handlePayment(Request $request, PaymentGatewayFactoryContract $gatewayContract)
     {
         try {
-            $paymentGateway = $paymentService->getPaymentGateway($request->input('payment'), $request);
+
+            $paymentDto = new PaymentGatewayDto($request->toArray());
+            $paymentGateway = $gatewayContract->getPaymentGateway($request->input('payment'), $paymentDto);
 
             if($paymentGateway->getStatus()) {
                  Order::create([

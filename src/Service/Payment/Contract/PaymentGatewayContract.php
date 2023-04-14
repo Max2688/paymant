@@ -14,20 +14,11 @@ interface PaymentGatewayContract
      */
     public function getDate(): string;
 
-    /**
-     * @return string
-     */
-    public function getMonth(): string;
 
     /**
      * @return float
      */
     public function getAmount(): float;
-
-    /**
-     * @return string
-     */
-    public function getYear(): string;
 
     /**
      * @return string
