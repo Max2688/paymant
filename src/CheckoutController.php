@@ -6,13 +6,14 @@ use App\DTO\PaymentGatewayDto;
 use App\Exceptions\PaymentException;
 use App\Exceptions\UnknownPaymentMethodException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PaymentRequest;
 use App\Service\Payment\Contract\PaymentGatewayFactoryContract;
 use Illuminate\Http\Request;
 use App\Models\Order;
 
 class CheckoutController extends Controller
 {
-    public function handlePayment(Request $request, PaymentGatewayFactoryContract $gatewayContract)
+    public function handlePayment(PaymentRequest $request, PaymentGatewayFactoryContract $gatewayContract)
     {
         try {
 
