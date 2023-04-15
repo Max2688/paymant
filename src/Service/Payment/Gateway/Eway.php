@@ -20,13 +20,12 @@ class Eway implements PaymentGatewayContract
         protected PaymentGatewayDto $paymentDto
     ){}
 
-
     /**
      * @inheritDoc
      */
     public function getCard(): string
     {
-        return $this->paymentDto->card;
+        return $this->paymentDto->getCard();
     }
 
     /**
@@ -34,7 +33,7 @@ class Eway implements PaymentGatewayContract
      */
     public function getName(): string
     {
-        return $this->paymentDto->name;
+        return $this->paymentDto->getName();
     }
 
     /**
@@ -42,7 +41,7 @@ class Eway implements PaymentGatewayContract
      */
     public function getDate(): string
     {
-        return $this->paymentDto->date;
+        return $this->paymentDto->getDate();
     }
 
     /**
@@ -50,7 +49,7 @@ class Eway implements PaymentGatewayContract
      */
     public function getCvv(): string
     {
-        return $this->paymentDto->cvv;
+        return $this->paymentDto->getCvv();
     }
 
     /**
@@ -58,7 +57,7 @@ class Eway implements PaymentGatewayContract
      */
     public function getAmount(): float
     {
-        return str_replace(',', '', $this->paymentDto->amount ) * 100;
+        return str_replace(',', '', $this->paymentDto->getAmount() ) * 100;
     }
 
     /**
