@@ -1,0 +1,22 @@
+version: '3.3'
+services:
+    composer:
+        build: ./docker/composer/
+    nginx:
+        build: ./docker/nginx/
+        ports:
+            - ${NGINX_INTERNAL_PORT}:${NGINX_EXTERNAL_PORT}
+        links:
+            - php
+        volumes:
+            - ./project:/var/www/symfony_payment
+            - ./docker/nginx/conf:/etc/nginx/conf.d
+            - ./docker/nginx/logs/error.log:/var/log/nginx/error.log
+            - ./docker/nginx/logs/access.log:/var/log/nginx/access.log
+    php:
+        build: ./docker/php/
+        links:
+            - composer
+        volumes:
+            - ./project:/var/www/symfony_payment
+            - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php-custom.ini

@@ -1,1 +1,7 @@
 /.idea
+/.history
+docker-compose.override.yml
+/docker/nginx/logs/access.log
+/docker/nginx/logs/error.log
+.env
+/public/uploads
