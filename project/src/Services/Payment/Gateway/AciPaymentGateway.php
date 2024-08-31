@@ -5,10 +5,13 @@ namespace App\Services\Payment\Gateway;
 use App\Services\Payment\Contract\PaymentGatewayInterface;
 use App\Services\Payment\DTO\Requests\PaymentRequestDto;
 use App\Services\Payment\DTO\Responses\PaymentResponse;
+use App\Services\Payment\PaymentGatewayType;
 use App\Services\PaymentClients\AciClient;
 use App\Services\PaymentClients\DTO\Requests\AciPaymentRequest;
 use App\Services\PaymentClients\DTO\Requests\CardDto;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+#[AutoconfigureTag('app.payment_gateway')]
 final class AciPaymentGateway implements PaymentGatewayInterface
 {
     public function __construct(
@@ -48,5 +51,10 @@ final class AciPaymentGateway implements PaymentGatewayInterface
             $response->card->bin,
         );
 
+    }
+
+    public function getType(): PaymentGatewayType
+    {
+        return PaymentGatewayType::PAYMENT_GATEWAY_ACI;
     }
 }

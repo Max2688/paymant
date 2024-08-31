@@ -5,12 +5,15 @@ namespace App\Services\Payment\Gateway;
 use App\Services\Payment\Contract\PaymentGatewayInterface;
 use App\Services\Payment\DTO\Requests\PaymentRequestDto;
 use App\Services\Payment\DTO\Responses\PaymentResponse;
+use App\Services\Payment\PaymentGatewayType;
 use Psr\Log\LoggerInterface;
 use Shift4\Exception\Shift4Exception;
 use Shift4\Request\CardRequest;
 use Shift4\Request\ChargeRequest;
 use Shift4\Shift4Gateway;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+#[AutoconfigureTag('app.payment_gateway')]
 final class Shift4PaymentGateway implements PaymentGatewayInterface
 {
     public function __construct(
@@ -54,4 +57,8 @@ final class Shift4PaymentGateway implements PaymentGatewayInterface
         return null;
     }
 
+    public function getType(): PaymentGatewayType
+    {
+        return PaymentGatewayType::PAYMENT_GATEWAY_SHIFT4;
+    }
 }

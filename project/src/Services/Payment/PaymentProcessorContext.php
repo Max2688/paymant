@@ -4,15 +4,12 @@ namespace App\Services\Payment;
 
 use App\Exception\UnknownPaymentMethodException;
 use App\Services\Payment\DTO\Responses\PaymentResponse;
-use App\Services\Payment\Gateway\AciPaymentGateway;
 use App\Services\Payment\DTO\Requests\PaymentRequestDto;
-use App\Services\Payment\Gateway\Shift4PaymentGateway;
 
-class PaymentProcessorContext
+final class PaymentProcessorContext
 {
     public function __construct(
-        private Shift4PaymentGateway $shift4PaymentGateway,
-        private AciPaymentGateway $aciPaymentGateway
+        private iterable $gateways
     ){
     }
 
@@ -27,12 +24,19 @@ class PaymentProcessorContext
         PaymentRequestDto $requestDto
     ): ?PaymentResponse
     {
-        $gateway = match ($gatewayType) {
-            'shift4' => $this->shift4PaymentGateway,
-            'aci' => $this->aciPaymentGateway,
-            default => throw new UnknownPaymentMethodException('Invalid gateway type'),
-        };
+        $paymentType = PaymentGatewayType::tryFrom($gatewayType);
 
-        return $gateway->processPayment($requestDto);
+        if ($paymentType === null) {
+            throw new UnknownPaymentMethodException('Invalid gateway type');
+        }
+
+        foreach ($this->gateways as $gateway){
+            if($gateway->getType() === $paymentType){
+                return $gateway->processPayment($requestDto);
+            }
+        }
+
+        return null;
+
     }
 }

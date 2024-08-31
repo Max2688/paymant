@@ -25,3 +25,6 @@ services:
     App\Services\Payment\Gateway\Shift4PaymentGateway:
         arguments:
             $secretKey: "%env(SHIFT4_API_SECRET_KEY)%"
+    App\Services\Payment\PaymentProcessorContext:
+        arguments:
+            $gateways: !tagged_iterator app.payment_gateway
